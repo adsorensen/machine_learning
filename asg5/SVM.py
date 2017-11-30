@@ -75,12 +75,10 @@ def test_SVM():
     trade = [10, 1, .1, .01, .001, .0001]
     a = cross_validate(.1, .1)
     print(a)
-#==============================================================================
-#     for r in learning:
-#         for t in trade:
-#             a = cross_validate(r, t)
-#             print("Learning rate: " + r + " tradeoff: "+ t + " ACCURACY: " + a)
-#==============================================================================
+    for r in learning:
+        for t in trade:
+            a = cross_validate(r, t)
+            print("Learning rate: " + str(r) + " tradeoff: "+ str(t) + " ACCURACY: " + str(a))
         
     
 def cross_validate(r, tradeOff):

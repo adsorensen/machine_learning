@@ -9,6 +9,7 @@ Main driver function for ASG 5
 from SVM import *
 from bayes import *
 from logistic_regression import *
+import math
 # Max index: 67692
 
 def main():
@@ -16,8 +17,11 @@ def main():
     testFile = './data/speeches.test.liblinear'
     train = importFile(trainFile)
     test = importFile(testFile)
+    
     data, labels = get_data(train)
-    testD, testLabels = get_data(test)
+    testD, Tlabels = get_data(test)
+    
+    
     
     
     
@@ -25,10 +29,11 @@ def main():
     #regression_main(data, labels)
     
     # BAYES
-    #naive_bayes(data, labels)
+    #test_H_bayes()
+    naive_bayes(data, labels, .5, testD, Tlabels)
     
     # SVM
-    test_SVM()
+    #test_SVM()
     #w = s_adjust_v(data, labels, r, tradeOff, e)
     #a = test_accuracy(testD, testLabels, w, b)
     
