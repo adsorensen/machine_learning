@@ -1,0 +1,172 @@
+\section{Experiments}\label{sec:q2}
+
+For this question, you will have to implement and compare six
+different learning strategies: SVM, logistic regression (from your
+answer to the previous question), the naive Bayes classifier, bagging
+and two ensembles over decision trees.
+
+\subsection{The task and data}
+This homework explores the problem of plagiarism.  That is, looking at
+overlapping words and phrases in two pieces of text, we seek to
+predict whether they were written by the same person.
+
+In order to study this, we have constructed a dataset from political
+speeches over the last 200 years. The instances we want to classify
+are pairs of speeches and the label is $+1$ if they were delivered by
+the same person, and $-1$ otherwise. To help with your experiments, we
+have extracted word, bigram and trigram features from the text and
+converted the features into the familiar liblinear format that we used
+in the previous homeworks. The data directory (provided as the
+compressed file {\tt data.zip}) contains the following files:
+
+\begin{enumerate}
+\item {\tt speeches.train.liblinear}: The full training set, with 2818
+  examples.
+\item {\tt speeches.test.liblinear}: The test set, with 940 examples.
+\item To help with cross-validation, we have split the training set
+  into five parts {\tt training00.data} - {\tt training04.data} in the
+  folder {\tt CVSplits}.
+\end{enumerate}
+
+\subsection{Implementation Notes}
+
+Each algorithm has different hyper-parameters, as described below.
+Use $5$-fold cross-validation to identify the best hyper-parameters as
+you did in the previous homework.
+
+\textbf{Be careful: the dimensionality of this dataset is very large,
+  you may want to use a different strategy to represent your feature
+  vectors.} One approach is to store inputs as sparse vectors rather
+than dense vectors by only storing non-zero elements -- for example,
+instead of storing the vector $[1.1,2,0,0,1.3,0,0,0]$ as an array, we
+can keep the non-zero entries in memory as a map from from indexes to
+values, namely $\{0:1.1, 1:2, 4:1.3\}$.
+
+\subsection{Algorithms to Compare}
+
+\begin{enumerate}
+\item~[15 points] \textbf{Support Vector Machine}
+
+  Implement simple SGD version of SVM as described in the class. You
+  need to use sub-gradient instead of the gradient.
+
+  \textbf{Hyper-parameters}: 
+  \begin{enumerate}
+  \item Initial learning rate: $\gamma_0\in\{10^1, 10^0, 10^{-1}, 10^{-2}, 10^{-3}, 10^{-4}\}$
+  \item The regularization/loss tradeoff parameter: $C\in \{10^1, 10^0, 10^{-1}, 10^{-2}, 10^{-3}, 10^{-4}\}$
+  \end{enumerate}
+  
+\item~[15 points] \textbf{Logistic regression}
+
+  Implement the Logistic Regression learner based on your algorithm in
+  the Question~\ref{sec:q1}.
+
+  \textbf{Hyper-parameters}: 
+  \begin{enumerate}
+  \item Initial learning rate: $\gamma_0\in\{10^0, 10^{-1}, 10^{-2}, 10^{-3}, 10^{-4}, 10^{-5}\}$
+  \item Tradeoff: $\sigma^2\in \{10^{-1}, 10^0, 10^{1}, 10^{2}, 10^{3}, 10^{4}\}$
+  \end{enumerate}
+
+\item~[15 points] \textbf{Naive Bayes}
+
+  Implement the simple Naive Bayes learner. You need to count the
+  features to get the likelihoods one at a time. To get the prior, you
+  will need to count the number of examples in each class.  
+
+  For every feature $x_i$, you should estimate its likelihood of
+  taking a value for a given label $y$ (which is either $+$ or $-$)
+  as:
+  %
+  \begin{equation*}
+    P(x_i \vert y) = \frac{Count(x_i, y)+\lambda}{Count(y)+S_i\lambda}.
+  \end{equation*}
+
+  Here, $S_i$ is the number of all possible values that $x_i$ can take
+  in the data. (In the data provided, each feature is binary, which
+  should simplify your implementation a lot.)
+
+  The hyper-parameter $\lambda$ is a smoothing term. In example we saw
+  in class, we set $\lambda= 1$.  But, in this experiment, you should
+  choose the best $\lambda$ based on cross-validation.
+
+  \textbf{Hyper-parameter}: Smoothing term: $\lambda \in \{2, 1.5, 1.0, 0.5\}$
+
+\item~[15 points] \textbf{Bagged Forests}
+
+  In class we have learned how the bagging algorithms work.
+  In this setting, you are going to build a bagging algorithm based on
+  depth-limited decision trees learned using the ID3 algorithm.
+
+  Given the dataset, you need to build $1000$ decision trees. For each
+  decision tree, you need to sample $1000$ examples with replacement
+  from training set and use this subset to train your decision tree.
+  After you get $1000$ trees, for a new example, the prediction will
+  be label that gets the larger vote the vote among these trees.
+
+  \textbf{Hyper-parameters}: Depth: $d \in \{50, 100, 150, 200\}$
+
+\item~[10 points] \textbf{SVM over trees}
+
+  Use the $1000$ decision trees in the last question to predict the label for each example in the training and test set.
+  Then for each example, there will be $1000$ predictions.
+  Instead of simple voting over the predictions of these trees, we would like to use SVM to combine these predictions for this question.
+  Specifically, after growing the $1000$ trees, you should construct a new dataset consisting of transformed features.
+  The features transformation $\phi(\mathbf{x})$ is defined using $1000$ trees as follows:
+  \begin{equation*}
+    \phi(x) = [\text{tree}_1(x),\text{tree}_2(x),\ldots, \text{tree}_{1000}(x)]
+  \end{equation*}
+  In other words, you will build an $1000$ dimensional vector consisting of the prediction ($1$ or $-1$) of each tree that you created.
+  Thus, you have a learned feature transformation. Now, train an SVM
+  (using your learner from the first part of this question) on this
+  transformed data.
+
+  \textbf{Hyper-parameters}:
+  \begin{enumerate}
+  \item Learning rate $\gamma\in\{10^0, 10^{-1}, 10^{-2}, 10^{-3}, 10^{-4}, 10^{-5}\}$
+  \item Tradeoff $C \in \{10^1, 10^0, 10^{-1}, 10^{-2}, 10^{-3}, 10^{-4}, 10^{-5}\}$
+  \item Depth: $d \in \{50, 100, 150, 200\}$
+  \end{enumerate}
+\item~[10 points] \textbf{Logistic regression over trees}
+
+  Use the logistic regression instead of SVM on the same dataset generated in last question.
+
+  \textbf{Hyper-parameters}:
+  \begin{enumerate}
+  \item Initial learning rate: $\gamma_0\in\{10^0, 10^{-1}, 10^{-2}, 10^{-3}, 10^{-4}, 10^{-5}\}$
+  \item Tradeoff: $\sigma^2\in \{10^{-1}, 10^0, 10^{1}, 10^{2}, 10^{3}, 10^{4}\}$
+  \item Depth: $d \in \{50, 100, 150, 200\}$
+  \end{enumerate}
+\end{enumerate}
+
+\subsection{What to report}
+
+\begin{enumerate}
+\item For each algorithm above, briefly describe the design decisions
+  that you have made in your implementation. (E.g, what programming
+  language, how do you represent the vectors, trees, etc.)
+
+\item Report the best hyper-parameters and accuracy on training set
+  and test set.  Please fill Table~\ref{tb}. 
+
+  \begin{table}[]
+    \centering
+    \scriptsize
+    \begin{tabular}{lcccc}
+    \toprule 
+                                     & Best hyper-parameters & \begin{tabular}[c]{@{}c@{}}Average cross-validation \\accuracy\end{tabular}
+                                     & Training accuracy     & Test Accuracy                                       \\\midrule
+      SVM                            &                       &  &                                                  \\\midrule
+      Logistic regression            &                       &  &                                                  \\\midrule
+      Naive Bayes                    &                       &  &                                                  \\\midrule
+      Bagged Forests                 &                       &  &                                                  \\\midrule
+      SVM over trees                 &                       &  &                                                  \\\midrule
+      Logistic regression over trees &                       &  &                                                  \\\bottomrule
+    \end{tabular}
+    \caption{Result table}\label{tb}
+  \end{table}
+\end{enumerate}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "hw"
+%%% End:
