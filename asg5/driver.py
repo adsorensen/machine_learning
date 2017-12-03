@@ -9,8 +9,10 @@ Main driver function for ASG 5
 from SVM import *
 from bayes import *
 from logistic_regression import *
-import math
+from bagged_trees import *
+
 # Max index: 67692
+SIZE = 67693
 
 def main():
     trainFile = './data/speeches.train.liblinear'
@@ -26,7 +28,10 @@ def main():
     
     
     # logistic regression
-    #regression_main(data, labels)
+    w = logistic_main(data, labels, 1, .0001, 100)
+    a = test_accuracy(testD, Tlabels, w)
+    print("Logistic regression test accuracy: " + str(a))
+    #test_logistic()
     
     # BAYES
     #test_H_bayes()
@@ -34,8 +39,14 @@ def main():
     
     # SVM
     #test_SVM()
-    #w = s_adjust_v(data, labels, r, tradeOff, e)
-    #a = test_accuracy(testD, testLabels, w, b)
+    w = s_adjust_v(data, labels, 10, .0001, 3)
+    a = test_accuracy(testD, Tlabels, w)
+    print("SVM test accuracy: " + str(a))
+    
+    # bagged trees
+    #bagged_trees(data, labels, testD, Tlabels)
+    
+    
     
     
     print("done")

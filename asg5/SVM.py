@@ -62,9 +62,13 @@ def test_accuracy(data, labels, w):
             dot = dot + (w[int(d)])
             
         
-        if y*dot <= 1:
+        if dot <= 1 and y == 1:
             # mistake
             m = m + 1
+        elif dot > 1 and y == -1:
+            m = m + 1
+        else:
+            pass
         i = i + 1
             
     c = total - m
@@ -73,8 +77,12 @@ def test_accuracy(data, labels, w):
 def test_SVM():
     learning = [10, 1, .1, .01, .001, .0001]
     trade = [10, 1, .1, .01, .001, .0001]
-    a = cross_validate(.1, .1)
-    print(a)
+#==============================================================================
+#     a = cross_validate(.1, .001)
+#     print("Learning rate: " + str(.1) + " tradeoff: "+ str(.001) + " ACCURACY: " + str(a))
+#     a = cross_validate(.1, .0001)
+#     print("Learning rate: " + str(.1) + " tradeoff: "+ str(.0001) + " ACCURACY: " + str(a))
+#==============================================================================
     for r in learning:
         for t in trade:
             a = cross_validate(r, t)
